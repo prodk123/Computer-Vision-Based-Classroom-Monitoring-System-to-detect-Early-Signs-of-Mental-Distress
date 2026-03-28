@@ -234,3 +234,5 @@ All hyperparameters are centralized in `config/config.yaml`:
 ## 📄 License
 
 This project is for academic and research purposes only.
+#   C o m p u t e r - V i s i o n - B a s e d - C l a s s r o o m - M o n i t o r i n g - S y s t e m - t o - d e t e c t - E a r l y - S i g n s - o f - M e n t a l - D i s t r e s s  
+ 
