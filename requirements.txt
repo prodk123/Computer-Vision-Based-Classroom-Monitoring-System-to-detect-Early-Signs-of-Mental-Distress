@@ -1,0 +1,35 @@
+# ============================================================
+# Classroom Monitoring System — Dependencies
+# ============================================================
+
+# Core ML
+torch>=2.0.0
+torchvision>=0.15.0
+timm>=0.9.0
+
+# Computer Vision
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+Pillow>=10.0.0
+
+# Configuration
+PyYAML>=6.0
+omegaconf>=2.3.0
+
+# Visualization & Dashboard
+streamlit>=1.28.0
+plotly>=5.17.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Logging & Utilities
+tqdm>=4.65.0
+tensorboard>=2.14.0
+
+# Video Processing
+av>=10.0.0

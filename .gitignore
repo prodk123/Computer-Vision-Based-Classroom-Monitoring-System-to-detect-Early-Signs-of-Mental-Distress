@@ -1,0 +1,36 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Checkpoints and Models
+checkpoints/
+*.pth
+*.pt
+*.onnx
+
+# Data and Outputs
+data/
+outputs/
+logs/
+*.csv
+*.mp4
+*.avi
+
+# OS Generated
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp

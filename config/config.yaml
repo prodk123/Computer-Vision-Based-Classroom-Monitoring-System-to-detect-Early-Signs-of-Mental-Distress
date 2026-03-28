@@ -1,0 +1,111 @@
+# ============================================================
+# Classroom Monitoring System — Configuration
+# ============================================================
+
+# --- Project Paths ---
+paths:
+  raw_data: "data/raw/DAiSEE"
+  processed_data: "data/processed"
+  splits_dir: "data/splits"
+  checkpoints: "checkpoints"
+  logs: "logs"
+  outputs: "outputs"
+
+# --- Preprocessing ---
+preprocessing:
+  target_fps: 5                    # Frames extracted per second
+  face_detector: "mediapipe"       # "mediapipe" or "mtcnn"
+  face_min_confidence: 0.5
+  face_crop_size: [224, 224]       # Resize cropped face to this
+  face_padding: 0.2                # Padding around detected face (fraction)
+
+# --- Dataset ---
+dataset:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  random_seed: 42
+  num_workers: 4
+  pin_memory: true
+
+# --- Model ---
+model:
+  backbone: "resnet18"             # "resnet18" or "efficientnet_b0"
+  pretrained: true
+  embedding_dim: 256
+  num_classes:
+    engagement: 4                  # 0=very low, 1=low, 2=high, 3=very high
+    boredom: 4
+    confusion: 4
+    frustration: 4
+  dropout: 0.3
+  freeze_backbone_epochs: 5       # Freeze backbone for N initial epochs
+
+# --- Temporal Model ---
+temporal:
+  window_size: 30                  # Sliding window size (frames)
+  stride: 5                       # Sliding window stride
+  use_lstm: true
+  lstm_hidden_dim: 128
+  lstm_num_layers: 2
+  lstm_dropout: 0.2
+  sequence_length: 10             # Number of frames for LSTM sequence
+
+# --- Attention Estimation ---
+attention:
+  yaw_threshold: 30.0             # Degrees — beyond this = off-task
+  pitch_threshold: 25.0
+  roll_threshold: 20.0
+  attention_decay_rate: 0.1       # Exponential decay for deviation
+
+# --- Risk Fusion ---
+risk_fusion:
+  weights:
+    low_engagement: 0.35
+    confusion: 0.25
+    frustration: 0.25
+    attention_deviation: 0.15
+  alert_threshold: 0.65           # Risk score threshold for alert
+  persistence_duration: 30        # Seconds of sustained risk before alert
+  false_positive_cooldown: 60     # Seconds cooldown after alert
+  smoothing_alpha: 0.3            # EMA smoothing factor
+
+# --- Training ---
+training:
+  batch_size: 32
+  epochs: 10
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  scheduler: "cosine"             # "cosine", "step", "plateau"
+  step_size: 10
+  gamma: 0.1
+  patience: 7                     # Early stopping patience
+  task_weights:
+    engagement: 1.0
+    boredom: 0.8
+    confusion: 0.9
+    frustration: 0.9
+  gradient_clip: 1.0
+  mixed_precision: false
+  save_every: 5                   # Save checkpoint every N epochs
+
+# --- Inference ---
+inference:
+  device: "auto"                  # "auto", "cuda", "cpu"
+  camera_id: 0
+  display_fps: true
+  max_faces: 30                   # Max faces to track simultaneously
+  buffer_size: 150                # Temporal buffer size (frames)
+
+# --- Dashboard ---
+dashboard:
+  host: "0.0.0.0"
+  port: 8501
+  refresh_rate: 1.0               # Seconds between UI updates
+  history_length: 300             # Number of points in trend graph
+
+# --- Logging ---
+logging:
+  level: "INFO"
+  log_to_file: true
+  log_format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"

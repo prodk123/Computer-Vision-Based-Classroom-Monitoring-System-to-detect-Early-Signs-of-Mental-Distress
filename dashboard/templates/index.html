@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a; /* Slate 900 */
+            color: #f1f5f9;      /* Slate 100 */
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 1rem;
+        }
+        .glass-panel:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.15);
+            transition: all 0.3s ease;
+        }
+        /* Custom scrollbar for student list */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        .pulse-alert {
+            animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+            50% { border-color: rgba(239, 68, 68, 0.3); box-shadow: 0 0 20px rgba(239,68,68,0.1); }
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6 md:p-8 flex flex-col gap-6">
+
+    <!-- Header -->
+    <header class="glass-panel p-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight gradient-text">Classroom Intelligence</h1>
+            <p class="text-slate-400 mt-1 font-medium">Real-time behavioral patterning &bull; AI-Powered Decision Support</p>
+        </div>
+        <div id="connection-status" class="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full border border-emerald-500/20 text-sm font-semibold">
+            <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            System Online (<span id="fps-counter">0.0</span> FPS)
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+        
+        <!-- Video Feed (Left 2 columns) -->
+        <section class="lg:col-span-2 flex flex-col gap-6">
+            
+            <!-- Global Metrics Strip -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="glass-panel p-5 flex flex-col justify-center">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Active Students</p>
+                    <p id="student-count" class="text-3xl font-bold text-white">0</p>
+                </div>
+                <div class="glass-panel p-5 flex flex-col justify-center">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Avg Engagement</p>
+                    <p id="avg-engagement" class="text-3xl font-bold text-blue-400">---</p>
+                </div>
+                <div class="glass-panel p-5 flex flex-col justify-center">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Notifications</p>
+                    <p id="alert-count" class="text-3xl font-bold text-green-400">0</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Stream -->
+            <div class="glass-panel overflow-hidden relative group">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none z-10 flex items-end p-6">
+                    <p class="text-slate-300 font-medium tracking-wide">Live High-Definition AI Inference Pipeline</p>
+                </div>
+                <img id="video-stream" src="/video_feed" class="w-full h-auto object-cover opacity-90 transition-opacity duration-300 z-0" alt="Video Stream Loading..."/>
+            </div>
+            
+            <!-- Notification Banners -->
+            <div id="alerts-container" class="flex flex-col gap-3">
+                <!-- Javascript will populate this -->
+            </div>
+        </section>
+
+        <!-- Sidebar Details -->
+        <aside class="glass-panel p-6 flex flex-col">
+            <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-4">Real-Time Student Profiles</h2>
+            <div id="students-container" class="flex flex-col gap-4 overflow-y-auto pr-2" style="max-height: 800px;">
+                <p class="text-slate-500 italic">Awaiting AI connection...</p>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // Engagement level text mappings
+        const engLabels = {0: "Very Low", 1: "Low", 2: "High", 3: "Very High"};
+        
+        // Colors mapping logic for components
+        function getRiskColor(level) {
+            switch(level) {
+                case 'high': return 'text-red-400 bg-red-400/10 border-red-400/30';
+                case 'elevated': return 'text-orange-400 bg-orange-400/10 border-orange-400/30';
+                case 'moderate': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
+                default: return 'text-green-400 bg-green-400/10 border-green-400/30';
+            }
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                // Update FPS & Top Metrics
+                document.getElementById('fps-counter').innerText = data.fps;
+                document.getElementById('student-count').innerText = data.students.length;
+                document.getElementById('alert-count').innerText = data.active_alerts.length;
+                
+                if (data.active_alerts.length > 0) {
+                    document.getElementById('alert-count').className = "text-3xl font-bold text-red-400 pulse-alert";
+                } else {
+                    document.getElementById('alert-count').className = "text-3xl font-bold text-green-400";
+                }
+
+                // Update Avg Engagement
+                let totalEng = 0;
+                data.students.forEach(s => totalEng += s.engagement_class);
+                const avgEng = data.students.length > 0 ? Math.round(totalEng / data.students.length) : -1;
+                document.getElementById('avg-engagement').innerText = avgEng >= 0 ? engLabels[avgEng] : "---";
+                if(avgEng < 2 && avgEng >= 0) {
+                     document.getElementById('avg-engagement').className = "text-3xl font-bold text-orange-400";
+                } else {
+                     document.getElementById('avg-engagement').className = "text-3xl font-bold text-blue-400";
+                }
+
+                // Update Alerts
+                const alertsDiv = document.getElementById('alerts-container');
+                alertsDiv.innerHTML = '';
+                data.active_alerts.forEach(alert => {
+                    alertsDiv.innerHTML += `
+                    <div class="pulse-alert bg-red-900/40 border border-red-500 rounded-lg p-4 flex items-start gap-4 shadow-xl">
+                        <div class="text-red-400 text-2xl mt-1">⚠️</div>
+                        <div>
+                            <h4 class="text-red-100 font-bold mb-1">Student ${alert.id} Alert</h4>
+                            <p class="text-red-200/80 text-sm">${alert.msg}</p>
+                        </div>
+                    </div>`;
+                });
+
+                // Update Student Cards
+                const studentsDiv = document.getElementById('students-container');
+                studentsDiv.innerHTML = '';
+                
+                if(data.students.length === 0) {
+                    studentsDiv.innerHTML = '<p class="text-slate-500 italic text-center py-10">No students detected in frame.</p>';
+                }
+
+                data.students.forEach(s => {
+                    let riskClasses = getRiskColor(s.risk_level);
+                    let engColor = s.engagement_class < 2 ? 'text-orange-400' : 'text-blue-400';
+                    let attnBarStr = Math.round(s.attention_score * 100);
+                    let attnColor = s.attention_score < 0.4 ? 'bg-red-500' : (s.attention_score < 0.7 ? 'bg-yellow-500' : 'bg-green-500');
+
+                    studentsDiv.innerHTML += `
+                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 hover:border-slate-500 transition-colors">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-white">Student ${s.student_id}</h3>
+                            <span class="px-3 py-1 text-xs font-bold uppercase rounded-full border ${riskClasses}">
+                                ${s.risk_level} Risk
+                            </span>
+                        </div>
+                        
+                        <!-- Metrics -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Engagement</span>
+                                <span class="font-bold ${engColor}">${engLabels[s.engagement_class]}</span>
+                            </div>
+                            
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-slate-400">Attention Span</span>
+                                    <span class="font-bold text-slate-200">${attnBarStr}%</span>
+                                </div>
+                                <div class="w-full bg-slate-700 rounded-full h-1.5">
+                                    <div class="${attnColor} h-1.5 rounded-full" style="width: ${attnBarStr}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Current Risk Score</span>
+                                <span class="font-bold text-slate-200">${(s.risk_score * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+
+            } catch (err) {
+                console.error("Connection lost:", err);
+                document.getElementById('connection-status').className = "flex items-center gap-2 bg-red-500/10 text-red-400 px-4 py-2 rounded-full border border-red-500/20 text-sm font-semibold";
+                document.getElementById('connection-status').innerHTML = '<div class="w-2 h-2 rounded-full bg-red-400"></div> System Offline';
+            }
+        }
+
+        // Poll stats every 200ms for buttery smooth JSON updates independent from MJPEG!
+        setInterval(fetchStats, 200);
+    </script>
+
+</body>
+</html>
