@@ -1,5 +1,5 @@
 # ============================================================
-# Classroom Monitoring System — Dependencies
+# Classroom Monitoring System — Dependencies needed for the project
 # ============================================================
 
 # Core ML
