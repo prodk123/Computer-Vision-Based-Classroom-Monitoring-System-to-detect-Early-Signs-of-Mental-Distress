@@ -7,7 +7,7 @@ Teacher-facing classroom monitoring dashboard displaying:
 - Attention scores
 - Risk trend graph over time
 - Alert status notifications
-
+-Students stress level
 IMPORTANT: No medical/clinical terminology is used.
 All language is neutral, observational, and supportive.
 
